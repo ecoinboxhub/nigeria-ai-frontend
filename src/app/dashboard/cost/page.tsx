@@ -6,13 +6,11 @@ import { useMutation } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { 
   Calculator, 
-  Drip, 
-  MapPin, 
-  Layers, 
   TrendingUp,
   DollarSign,
   Loader2,
-  ChevronRight
+  ChevronRight,
+  Target
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
