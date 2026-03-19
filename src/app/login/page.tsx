@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Lock, User, Loader2, HardHat, ArrowRight, ShieldCheck, Terminal } from "lucide-react";
+import api from "@/lib/api";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
