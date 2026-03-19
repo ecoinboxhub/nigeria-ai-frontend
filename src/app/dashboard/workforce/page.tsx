@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import api from "@/lib/api";
 import { motion } from "framer-motion";
 import { 
   Users, 
@@ -13,14 +16,34 @@ import {
   Zap,
   MoreVertical,
   Search,
-  Plus
+  Plus,
+  Activity
 } from "lucide-react";
 
 export default function WorkforceScheduler() {
+  const [isOptimized, setIsOptimized] = useState(false);
+  
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const res = await api.post("/workforce/optimize", {
+        groups: [
+          { role: "Civil", required: 300, available: 280 },
+          { role: "MEP", required: 150, available: 160 },
+          { role: "Welder", required: 400, available: 380 },
+          { role: "Finisher", required: 200, available: 220 }
+        ]
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      setIsOptimized(true);
+    }
+  });
+
   const sites = [
-    { name: "Eko Atlantic Phase 2", crew: "Alpha Civil", load: 85, status: "Critical", color: "bg-red-500", raw: 340, trend: "+12%" },
+    { name: "Eko Atlantic Phase 2", crew: "Alpha Civil", load: isOptimized ? 95 : 85, status: isOptimized ? "Stable" : "Critical", color: isOptimized ? "bg-primary" : "bg-red-500", raw: 340, trend: "+12%" },
     { name: "Abuja Tech Hub", crew: "Beta MEP", load: 45, status: "Active", color: "bg-primary", raw: 180, trend: "-5%" },
-    { name: "Port Harcourt Bridge", crew: "Delta Welding", load: 92, status: "Critical", color: "bg-slate-900", raw: 420, trend: "+2%" },
+    { name: "Port Harcourt Bridge", crew: "Delta Welding", load: isOptimized ? 98 : 92, status: isOptimized ? "Active" : "Critical", color: isOptimized ? "bg-primary" : "bg-slate-900", raw: 420, trend: "+2%" },
     { name: "Lekki Smart City", crew: "Zeta Finishing", load: 70, status: "Active", color: "bg-blue-400", raw: 240, trend: "+8%" },
   ];
 
@@ -83,9 +106,14 @@ export default function WorkforceScheduler() {
                  <BrainCircuit className="absolute -right-4 -bottom-4 w-24 h-24 text-primary/5" />
               </div>
 
-              <button className="w-full py-4 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black transition-all shadow-md">
-                GENERATE NEXT-WEEK PLAN
-              </button>
+               <button 
+                 onClick={() => mutation.mutate()}
+                 disabled={mutation.isPending}
+                 className="w-full py-4 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black transition-all shadow-md flex items-center justify-center gap-2"
+               >
+                 {mutation.isPending ? <Activity className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                 {mutation.isPending ? "OPTIMIZING NODES..." : "GENERATE NEXT-WEEK PLAN"}
+               </button>
            </div>
 
            <div className="bg-white p-6 rounded-2xl border border-border shadow-sm">

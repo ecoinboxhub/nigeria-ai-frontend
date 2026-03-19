@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import api from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText, 
@@ -16,17 +18,27 @@ import {
   Bot,
   Scale,
   ShieldCheck,
-  ChevronRight
+  ChevronRight,
+  Activity
 } from "lucide-react";
 import { COMPLIANCE_LOGS } from "@/lib/dummy_data";
 
 export default function DocumentAnalyzer() {
   const [query, setQuery] = useState("");
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  const mutation = useMutation({
+    mutationFn: async (q: string) => {
+      const res = await api.post("/document-analyzer/review", {
+        document_text: q, // In a real app, this would be the actual doc content or a reference
+        analysis_type: "legal_compliance"
+      });
+      return res.data;
+    },
+  });
 
   const handleSearch = () => {
-    setIsAnalyzing(true);
-    setTimeout(() => setIsAnalyzing(false), 2000);
+    if (!query) return;
+    mutation.mutate(query);
   };
 
   return (
@@ -84,15 +96,16 @@ export default function DocumentAnalyzer() {
                    </div>
                    <button 
                     onClick={handleSearch}
-                    disabled={isAnalyzing}
-                    className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg"
+                    disabled={mutation.isPending}
+                    className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center gap-2"
                    >
-                     {isAnalyzing ? "Vectorizing..." : "ANALYZE"}
+                     {mutation.isPending ? <Activity className="w-4 h-4 animate-spin" /> : null}
+                     {mutation.isPending ? "Vectorizing..." : "ANALYZE"}
                    </button>
                 </div>
 
                 <AnimatePresence>
-                  {isAnalyzing && (
+                  {mutation.isPending && (
                     <motion.div 
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -102,6 +115,26 @@ export default function DocumentAnalyzer() {
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                         Scanning 4,821 vector nodes for NBC 2023 compliance matches...
                       </p>
+                    </motion.div>
+                  )}
+                  {mutation.data && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-6 bg-white/5 border border-primary/30 rounded-2xl space-y-4"
+                    >
+                      <div className="flex justify-between items-center">
+                         <h3 className="text-[10px] font-black uppercase tracking-widest text-primary">Analysis Result</h3>
+                         <span className="text-[10px] font-black uppercase text-slate-500">Confidence: {mutation.data.confidence_score * 100}%</span>
+                      </div>
+                      <p className="text-sm text-white font-medium leading-relaxed italic">
+                        "{mutation.data.summary}"
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                         {mutation.data.citations?.map((cit: string, i: number) => (
+                           <span key={i} className="px-2 py-1 bg-primary/20 text-primary text-[8px] font-black rounded uppercase">Ref: {cit}</span>
+                         ))}
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

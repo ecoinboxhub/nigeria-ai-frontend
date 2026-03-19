@@ -41,12 +41,14 @@ export default function CostEstimator() {
 
   const mutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      // Simulation for BOQ Generation
-      await new Promise(r => setTimeout(r, 2000));
-      const base = data.area_sqm * 250000; // Base ₦250k per sqm
-      const marketFactor = data.material_quality * cityData.factor;
-      const inflation = data.include_inflation ? 1.28 : 1.0; // 28% Nigerian Inflation 2024
-      return { total: base * marketFactor * inflation };
+      const res = await api.post("/cost-estimator/predict", {
+        area_sqm: data.area_sqm,
+        floors: 1, // Default to 1 for now
+        complexity_index: data.material_quality,
+        labor_cost_index: cityData.factor,
+        materials_cost_index: data.include_inflation ? cityData.factor * 1.28 : cityData.factor
+      });
+      return { total: res.data.estimated_cost_ngn };
     },
   });
 

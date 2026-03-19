@@ -9,14 +9,27 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate Login
-    setTimeout(() => {
-      localStorage.setItem("token", "fake-token");
+    setError("");
+
+    // Read form values (using refs or state, but here I'll use target for simplicity since it's a small form)
+    const target = e.target as any;
+    const email = target[0].value;
+    const password = target[1].value;
+
+    try {
+      const res = await api.post("/auth/login", { email, password });
+      localStorage.setItem("token", res.data.access_token);
       router.push("/dashboard/projects");
-    }, 1500);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || "Authentication failed. Node unreachable.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

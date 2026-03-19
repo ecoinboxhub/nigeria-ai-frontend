@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useMutation } from "@tanstack/react-query";
+import api from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   BarChart3, 
@@ -16,7 +18,8 @@ import {
   Zap,
   Drone,
   AlertTriangle,
-  MapPin
+  MapPin,
+  Activity
 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -31,6 +34,29 @@ const performanceData = [
 
 export default function ProgressVisualizer() {
   const [activeTab, setActiveTab] = useState("ANALYZE");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const mutation = useMutation({
+    mutationFn: async (base64: string) => {
+      const res = await api.post("/progress-visualizer/analyze", {
+        image_base64: base64,
+        planned_completion_pct: 75.0, // Simulation: assume we are at 75%
+      });
+      return res.data;
+    },
+  });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        mutation.mutate(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const tabs = ["ANALYZE", "SCHEDULE", "MILESTONES"];
 
   return (
@@ -161,29 +187,57 @@ export default function ProgressVisualizer() {
                  </div>
               </div>
 
-              <div className="space-y-4">
-                 <button className="w-full py-4 bg-secondary/50 rounded-xl border border-border border-dashed flex flex-col items-center justify-center p-6 hover:bg-secondary hover:border-primary/50 transition-all group">
-                    <UploadCloud className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors mb-2" />
-                    <span className="text-[10px] font-black text-foreground uppercase tracking-widest">Upload Sector Imagery</span>
-                    <span className="text-[9px] text-muted-foreground font-medium mt-1">Supports drone logs (DNG/ZIP)</span>
-                 </button>
+               <div className="space-y-4">
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={mutation.isPending}
+                    className="w-full py-4 bg-secondary/50 rounded-xl border border-border border-dashed flex flex-col items-center justify-center p-6 hover:bg-secondary hover:border-primary/50 transition-all group"
+                  >
+                     {mutation.isPending ? (
+                       <Activity className="w-8 h-8 text-primary animate-spin mb-2" />
+                     ) : (
+                       <UploadCloud className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors mb-2" />
+                     )}
+                     <span className="text-[10px] font-black text-foreground uppercase tracking-widest">
+                       {mutation.isPending ? "Analyzing Drone Feed..." : "Upload Sector Imagery"}
+                     </span>
+                     <span className="text-[9px] text-muted-foreground font-medium mt-1">Supports site JPG/PNG (Max 10MB)</span>
+                  </button>
 
-                 <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
-                    <div className="flex items-center justify-between mb-3">
-                       <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Recent Processing</span>
-                       <span className="text-[9px] font-black text-blue-400 uppercase">2m ago</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                       <div className="w-10 h-10 rounded-lg bg-white overflow-hidden border border-blue-100 shadow-sm shrink-0">
-                          <img src="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=100&h=100&auto=format&fit=crop" className="w-full h-full object-cover" alt="thumb" />
+                  {mutation.data && (
+                    <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl animate-in fade-in slide-in-from-bottom-2">
+                       <div className="flex items-center justify-between mb-3">
+                          <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">AI Vision Result</span>
+                          <span className="text-[9px] font-black text-blue-400 uppercase">JUST NOW</span>
                        </div>
-                       <div className="flex-1 min-w-0">
-                          <p className="text-[10px] font-black text-foreground truncate uppercase">Sector_B_Drone_Flight_N.zip</p>
-                          <p className="text-[9px] text-blue-600/70 font-black uppercase tracking-tighter">AI Analysis: SUCCESS</p>
+                       <div className="space-y-2">
+                          <div className="flex justify-between text-[10px] font-bold">
+                            <span className="text-muted-foreground uppercase">Detected Progress:</span>
+                            <span className="text-blue-600">{mutation.data.detected_completion_pct}%</span>
+                          </div>
+                          <div className="flex justify-between text-[10px] font-bold">
+                            <span className="text-muted-foreground uppercase">Compliance Score:</span>
+                            <span className="text-green-600">{mutation.data.ppe_compliance_score}%</span>
+                          </div>
+                          <div className="pt-2 border-t border-blue-200">
+                             <p className="text-[10px] font-black text-blue-600 uppercase mb-1">Detected Structures:</p>
+                             <div className="flex flex-wrap gap-1">
+                                {mutation.data.detected_objects?.map((obj: string, i: number) => (
+                                  <span key={i} className="px-1.5 py-0.5 bg-white rounded text-[8px] font-bold text-blue-500 border border-blue-100 uppercase">{obj}</span>
+                                ))}
+                             </div>
+                          </div>
                        </div>
                     </div>
-                 </div>
-              </div>
+                  )}
+               </div>
            </div>
         </div>
       </div>

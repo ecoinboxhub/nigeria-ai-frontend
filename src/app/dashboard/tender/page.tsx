@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import api from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload,
@@ -25,10 +27,24 @@ import {
 
 export default function TenderAnalyzer() {
   const [activeTab, setActiveTab] = useState("ANALYZE");
+  const [tenderText, setTenderText] = useState("");
+  
+  const mutation = useMutation({
+    mutationFn: async (text: string) => {
+      const res = await api.post("/tender-analyzer/analyze", {
+        tender_id: "TENDER_" + Math.floor(Math.random() * 1000),
+        text: text
+      });
+      return res.data;
+    },
+  });
+
+  const aiRisks = mutation.data?.risks || [];
+  
   const riskCategories = [
-    { label: "Legal", score: 20, color: "bg-blue-200" },
-    { label: "Financial", score: 45, color: "bg-blue-400" },
-    { label: "Operational", score: 80, color: "bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]" },
+    { label: "Legal", score: aiRisks.find((r: any) => r.risk.toLowerCase().includes("liability")) ? 85 : 20, color: "bg-blue-200" },
+    { label: "Financial", score: aiRisks.find((r: any) => r.risk.toLowerCase().includes("cash")) ? 75 : 45, color: "bg-blue-400" },
+    { label: "Operational", score: aiRisks.find((r: any) => r.risk.toLowerCase().includes("schedule")) ? 90 : 80, color: "bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]" },
     { label: "Technical", score: 30, color: "bg-blue-600" },
     { label: "Environmental", score: 15, color: "bg-slate-300" },
   ];
@@ -103,13 +119,30 @@ export default function TenderAnalyzer() {
              <div className="mt-8 p-5 bg-slate-900 rounded-2xl shadow-xl relative overflow-hidden group">
                 <div className="relative z-10">
                    <h4 className="text-[10px] font-black text-primary uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <Zap className="w-3.5 h-3.5" /> Critical Anomaly
+                      <Zap className="w-3.5 h-3.5" /> AI Risk Audit
                    </h4>
-                   <p className="text-xs text-slate-200 font-bold leading-relaxed">
-                      Liability Clause 4.2 contains "Infinite Indemnity" trap not found in standard COREN forms.
-                   </p>
+                   <textarea
+                     value={tenderText}
+                     onChange={(e) => setTenderText(e.target.value)}
+                     placeholder="Paste tender clauses for AI analysis..."
+                     className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 font-medium mb-4 focus:outline-none focus:ring-2 focus:ring-primary h-24"
+                   />
+                   <button 
+                     onClick={() => mutation.mutate(tenderText)}
+                     disabled={mutation.isPending || tenderText.length < 50}
+                     className="w-full py-3 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50"
+                   >
+                     {mutation.isPending ? "Analyzing Architecture..." : "Run Risk Audit"}
+                   </button>
                 </div>
-                <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-primary/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
+                {mutation.data && (
+                  <div className="mt-4 p-3 bg-primary/10 rounded-xl border border-primary/20 relative z-10 transition-all">
+                     <p className="text-[9px] font-black text-primary uppercase mb-1">AI Recommendation:</p>
+                     <p className="text-[10px] text-slate-200 font-bold leading-relaxed italic">
+                       {mutation.data.summary || "No specific patterns detected."}
+                     </p>
+                  </div>
+                )}
              </div>
           </div>
         </div>

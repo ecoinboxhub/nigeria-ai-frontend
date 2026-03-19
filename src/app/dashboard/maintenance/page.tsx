@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import api from "@/lib/api";
 import { motion } from "framer-motion";
 import { 
   Wrench, 
@@ -18,9 +21,23 @@ import {
 } from "lucide-react";
 
 export default function MaintenancePredictor() {
+  const [selectedAsset, setSelectedAsset] = useState<string>("Tower Crane Abuja-Alpha");
+  
+  const mutation = useMutation({
+    mutationFn: async (assetName: string) => {
+      const res = await api.post("/maintenance-predictor/predict", {
+        equipment_id: assetName,
+        hours_operated: 1200,
+        temp_reading: 92.5,
+        vibration_level: 8.4
+      });
+      return res.data;
+    },
+  });
+
   const assets = [
     { name: "Excavator #Lagos-102", health: 92, status: "Optimal", nextChange: "450h", lastServiced: "Oct 12", site: "Lagos Island A" },
-    { name: "Tower Crane Abuja-Alpha", health: 34, status: "Critical", nextChange: "12h", lastServiced: "Nov-01", site: "Central Area" },
+    { name: "Tower Crane Abuja-Alpha", health: mutation.data?.health_score || 34, status: mutation.data?.status || "Critical", nextChange: "12h", lastServiced: "Nov-01", site: "Central Area" },
     { name: "Concrete Mixer PH-M4", health: 76, status: "Monitor", nextChange: "112h", lastServiced: "Sep-28", site: "Trans Amadi" },
     { name: "GenSet 500kVA Kano", health: 88, status: "Optimal", nextChange: "220h", lastServiced: "Oct-30", site: "Industrial Zone" },
   ];
@@ -68,12 +85,13 @@ export default function MaintenancePredictor() {
 
           <div className="grid grid-cols-1 gap-4">
              {assets.map((asset, i) => (
-               <motion.div 
-                 key={i}
-                 initial={{ opacity: 0, scale: 0.98 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 className="bg-white p-6 rounded-2xl border border-border shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 hover:border-primary/50 transition-all cursor-pointer group"
-               >
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  onClick={() => setSelectedAsset(asset.name)}
+                  className={`bg-white p-6 rounded-2xl border ${selectedAsset === asset.name ? 'border-primary shadow-md' : 'border-border shadow-sm'} flex flex-col md:flex-row items-center justify-between gap-6 hover:border-primary/50 transition-all cursor-pointer group`}
+                >
                   <div className="flex items-center gap-6 w-full">
                      <div className="relative w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center shrink-0">
                         <Wrench className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -113,40 +131,44 @@ export default function MaintenancePredictor() {
               </div>
               
               <div className="relative z-10 space-y-8">
-                 <div>
-                    <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4">Core Telemetry: Abuja-Alpha</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                       <div className="p-4 bg-white/5 border border-white/10 rounded-2xl">
-                          <div className="flex items-center justify-between mb-2">
-                             <span className="text-[9px] font-black text-slate-500 uppercase">Temp</span>
-                             <Thermometer className="w-4 h-4 text-red-500" />
-                          </div>
-                          <p className="text-2xl font-black text-red-500">92°C</p>
-                       </div>
-                       <div className="p-4 bg-white/5 border border-white/10 rounded-2xl">
-                          <div className="flex items-center justify-between mb-2">
-                             <span className="text-[9px] font-black text-slate-500 uppercase">Vibe</span>
-                             <Zap className="w-4 h-4 text-amber-500" />
-                          </div>
-                          <p className="text-2xl font-black text-amber-500">8.4 G</p>
-                       </div>
-                    </div>
-                 </div>
+                  <div>
+                     <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4">Core Telemetry: {selectedAsset}</h3>
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="p-4 bg-white/5 border border-white/10 rounded-2xl">
+                           <div className="flex items-center justify-between mb-2">
+                              <span className="text-[9px] font-black text-slate-500 uppercase">Temp</span>
+                              <Thermometer className="w-4 h-4 text-red-500" />
+                           </div>
+                           <p className="text-2xl font-black text-red-500">{selectedAsset.includes("Crane") ? "92°C" : "42°C"}</p>
+                        </div>
+                        <div className="p-4 bg-white/5 border border-white/10 rounded-2xl">
+                           <div className="flex items-center justify-between mb-2">
+                              <span className="text-[9px] font-black text-slate-500 uppercase">Vibe</span>
+                              <Zap className="w-4 h-4 text-amber-500" />
+                           </div>
+                           <p className="text-2xl font-black text-amber-500">{selectedAsset.includes("Crane") ? "8.4 G" : "1.2 G"}</p>
+                        </div>
+                     </div>
+                  </div>
 
-                 <div className="p-5 bg-red-500/10 border border-red-500/20 rounded-2xl space-y-3">
-                    <div className="flex items-center gap-2 text-red-500">
-                       <AlertTriangle className="w-5 h-5 animate-pulse" />
-                       <span className="text-xs font-black uppercase tracking-widest">Failure Alert</span>
-                    </div>
-                    <p className="text-[10px] text-slate-300 font-medium leading-relaxed italic">
-                      "High vibration in engine housing. AI predicts component failure in ~12hrs. Immediate ticket recommended."
-                    </p>
-                 </div>
+                  <div className="p-5 bg-red-500/10 border border-red-500/20 rounded-2xl space-y-3">
+                     <div className="flex items-center gap-2 text-red-500">
+                        <AlertTriangle className="w-5 h-5 animate-pulse" />
+                        <span className="text-xs font-black uppercase tracking-widest">AI Status: {mutation.data?.prediction || "Scanning..."}</span>
+                     </div>
+                     <p className="text-[10px] text-slate-300 font-medium leading-relaxed italic">
+                       {mutation.data?.recommendation || "Awaiting neural telemetry batch for precise failure window estimation."}
+                     </p>
+                  </div>
 
-                 <button className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3">
-                    <Wrench className="w-4 h-4" />
-                    DISPATCH TECHNICIAN
-                 </button>
+                  <button 
+                    onClick={() => mutation.mutate(selectedAsset)}
+                    disabled={mutation.isPending}
+                    className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3"
+                  >
+                     {mutation.isPending ? <Activity className="w-4 h-4 animate-spin" /> : <Wrench className="w-4 h-4" />}
+                     {mutation.isPending ? "FORECASTING..." : "DISPATCH TECHNICIAN"}
+                  </button>
               </div>
            </div>
 

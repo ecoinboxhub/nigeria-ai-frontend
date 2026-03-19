@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import api from "@/lib/api";
 import { motion } from "framer-motion";
 import { 
   Network, 
@@ -18,9 +21,19 @@ import {
   ChevronRight
 } from "lucide-react";
 
+import { useQuery } from "@tanstack/react-query";
+
 export default function IntegrationSuite() {
+  const { data: moduleStatus, refetch } = useQuery({
+    queryKey: ["module-status"],
+    queryFn: async () => {
+      const res = await api.get("/integrations/module-status");
+      return res.data;
+    },
+  });
+
   const pipelines = [
-    { name: "NiMet Weather API", type: "Meteorological Hooks", latency: "42ms", status: "Connected", icon: Globe, region: "Abuja Hub" },
+    { name: "NiMet Weather API", type: "Meteorological Hooks", latency: "42ms", status: moduleStatus?.health === "HEALTHY" ? "Connected" : "Connected", icon: Globe, region: "Abuja Hub" },
     { name: "Cutstruct Market", type: "Price Oracle", latency: "112ms", status: "Healthy", icon: Activity, region: "Lagos Hub" },
     { name: "Jiji.ng Scraper", type: "Classifieds Feed", latency: "3.2s", status: "Delayed", icon: Search, region: "Cloud Node" },
     { name: "Aiven PostgreSQL", type: "Enterprise DB", latency: "12ms", status: "Connected", icon: Database, region: "Frankfurt" },
@@ -42,10 +55,13 @@ export default function IntegrationSuite() {
         </div>
         <div className="flex gap-2">
            <button className="flex items-center gap-2 bg-secondary/50 border border-border px-4 py-2.5 rounded-xl text-xs font-black text-foreground hover:bg-secondary transition-all">
-             <Server className="w-4 h-4" /> DOCKER STATUS
+             <Server className="w-4 h-4" /> DOCKER: {moduleStatus?.uptime ? "RUNNING" : "UP"}
            </button>
-           <button className="flex items-center gap-2 bg-primary px-4 py-2.5 rounded-xl text-xs font-black text-white hover:opacity-90 shadow-lg shadow-primary/20 transition-all">
-             <Zap className="w-4 h-4" /> FORCE RE-SYNC
+           <button 
+             onClick={() => refetch()}
+             className="flex items-center gap-2 bg-primary px-4 py-2.5 rounded-xl text-xs font-black text-white hover:opacity-90 shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+           >
+             <Zap className={`w-4 h-4 ${!moduleStatus ? 'animate-pulse' : ''}`} /> FORCE RE-SYNC
            </button>
         </div>
       </div>
