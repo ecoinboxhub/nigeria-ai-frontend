@@ -8,118 +8,164 @@ import {
   Map, 
   Clock, 
   BrainCircuit,
-  Maximize2
+  Maximize2,
+  ChevronRight,
+  Zap,
+  MoreVertical,
+  Search,
+  Plus
 } from "lucide-react";
 
 export default function WorkforceScheduler() {
+  const sites = [
+    { name: "Eko Atlantic Phase 2", crew: "Alpha Civil", load: 85, status: "Critical", color: "bg-red-500", raw: 340, trend: "+12%" },
+    { name: "Abuja Tech Hub", crew: "Beta MEP", load: 45, status: "Active", color: "bg-primary", raw: 180, trend: "-5%" },
+    { name: "Port Harcourt Bridge", crew: "Delta Welding", load: 92, status: "Critical", color: "bg-slate-900", raw: 420, trend: "+2%" },
+    { name: "Lekki Smart City", crew: "Zeta Finishing", load: 70, status: "Active", color: "bg-blue-400", raw: 240, trend: "+8%" },
+  ];
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      <div className="flex justify-between items-end">
+    <div className="max-w-7xl mx-auto space-y-6 pb-12">
+      {/* Header & Controls */}
+      <div className="bg-white p-6 rounded-2xl border border-border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Workforce Scheduler</h1>
-          <p className="text-white/40">Reinforcement Learning for Shift Optimization</p>
+           <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest mb-1">
+             <BrainCircuit className="w-3 h-3" />
+             <span>Neural Resource Planner v2.1</span>
+           </div>
+           <h1 className="text-2xl font-black text-foreground tracking-tight uppercase">Workforce Intelligence</h1>
+           <p className="text-sm text-muted-foreground font-medium">Optimizing 1,240 workers across Nigerian regional hubs</p>
         </div>
-        <div className="flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 px-4 py-2 rounded-full text-orange-500">
-           <BrainCircuit className="w-4 h-4" />
-           <span className="text-xs font-bold uppercase">AI Planner Active</span>
+        <div className="flex gap-2 w-full md:w-auto">
+           <button className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-secondary/50 border border-border px-4 py-2.5 rounded-xl text-xs font-black text-foreground hover:bg-secondary transition-all">
+             <Search className="w-4 h-4" />
+             SEARCH CREW
+           </button>
+           <button className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-primary px-4 py-2.5 rounded-xl text-xs font-black text-primary-foreground hover:opacity-90 shadow-lg shadow-primary/20 transition-all">
+             <Plus className="w-4 h-4" />
+             ADD SHIFT
+           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Statistics */}
-        <div className="lg:col-span-1 space-y-6">
-           {[
-             { label: "Active Workers", value: "142", icon: Users },
-             { label: "Current Shifts", value: "03", icon: Clock },
-             { label: "Optimization Score", value: "96.4%", icon: BrainCircuit },
-           ].map((stat, idx) => (
-             <motion.div 
-               key={idx}
-               initial={{ opacity: 0, x: -20 }}
-               animate={{ opacity: 1, x: 0 }}
-               transition={{ delay: idx * 0.1 }}
-               className="p-6 glass rounded-2xl border border-white/5"
-             >
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-white/5 rounded-xl border border-white/10">
-                    <stat.icon className="w-5 h-5 text-orange-500/60" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase font-bold text-white/40">{stat.label}</p>
-                    <p className="text-xl font-black text-white">{stat.value}</p>
-                  </div>
-                </div>
-             </motion.div>
-           ))}
-
-           <div className="p-6 glass rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-center space-y-4 py-12">
-              <Calendar className="w-10 h-10 text-white/10" />
-              <button className="text-sm font-bold text-orange-500 hover:text-orange-400">Generate Next Week&apos;s Shift Plan</button>
-           </div>
-        </div>
-
-        {/* Schedule View */}
-        <div className="lg:col-span-3 space-y-6">
-           <div className="p-8 glass rounded-2xl border border-white/5 min-h-[600px]">
-              <div className="flex justify-between items-center mb-10">
-                 <h2 className="text-xl font-bold text-white flex items-center gap-3">
-                    <Map className="w-5 h-5 text-orange-500" />
-                    Resource Allocation Map
-                 </h2>
-                 <div className="flex gap-2">
-                    {['24H', '7D', '30D'].map(t => (
-                      <button key={t} className="px-3 py-1 rounded-lg text-[10px] font-bold border border-white/10 text-white/40 hover:text-white transition-colors uppercase">{t}</button>
-                    ))}
-                 </div>
-              </div>
-
-              {/* Mock Timeline */}
-              <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column: Metrics & Recommendations */}
+        <div className="lg:col-span-4 space-y-6">
+           <div className="bg-white p-6 rounded-2xl border border-border shadow-sm space-y-6">
+              <h3 className="text-xs font-black text-foreground uppercase tracking-widest flex items-center gap-2">
+                 <Zap className="w-4 h-4 text-primary" />
+                 Shift Performance
+              </h3>
+              
+              <div className="grid grid-cols-2 gap-4">
                  {[
-                   { site: "Eko Atlantic Phase 2", crew: "Alpha (Civil)", load: 85, color: "bg-orange-500" },
-                   { site: "Abuja Mall Expansion", crew: "Beta (Electrical)", load: 42, color: "bg-blue-500" },
-                   { site: "Port Harcourt Bridge", crew: "Gamma (Welding)", load: 92, color: "bg-red-500" },
-                   { site: "Lekki Residential", crew: "Delta (Finishing)", load: 68, color: "bg-green-500" },
-                 ].map((job, idx) => (
-                   <div key={idx} className="space-y-3">
-                      <div className="flex justify-between items-center pr-4">
-                         <div className="flex items-center gap-3">
-                            <span className="text-sm font-bold text-white">{job.site}</span>
-                            <span className="text-[10px] uppercase font-bold text-white/30">{job.crew}</span>
-                         </div>
-                         <span className="text-xs font-bold text-white/60">{job.load}% Load</span>
-                      </div>
-                      <div className="h-10 bg-white/5 rounded-xl border border-white/5 relative group overflow-hidden">
-                         <motion.div 
-                           initial={{ width: 0 }}
-                           animate={{ width: `${job.load}%` }}
-                           transition={{ duration: 1.5, type: "spring" }}
-                           className={`h-full ${job.color} opacity-20 border-r-2 border-${job.color.split('-')[1]}-500/50 relative`}
-                         >
-                            <div className="absolute inset-0 bg-grid-construction bg-[size:10px_10px]" />
-                         </motion.div>
-                         <button className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Maximize2 className="w-4 h-4 text-white/20 hover:text-white" />
-                         </button>
-                      </div>
+                   { label: "Active Nodes", val: "14", icon: Map },
+                   { label: "AI Confidence", val: "94%", icon: BrainCircuit },
+                 ].map((stat, i) => (
+                   <div key={i} className="p-4 bg-secondary/30 rounded-2xl border border-border">
+                      <stat.icon className="w-4 h-4 text-primary mb-2" />
+                      <p className="text-[10px] font-black text-muted-foreground uppercase">{stat.label}</p>
+                      <p className="text-xl font-black text-foreground">{stat.val}</p>
                    </div>
                  ))}
               </div>
 
-              <div className="mt-12 p-6 bg-orange-500/5 border border-orange-500/10 rounded-2xl flex items-start gap-4">
-                 <div className="p-2 bg-orange-500/20 rounded-lg shrink-0">
-                    <Briefcase className="w-5 h-5 text-orange-500" />
-                 </div>
-                 <div>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-tight mb-1 font-black">AI Recommendations</h3>
-                    <p className="text-xs text-white/60 leading-relaxed">
-                      &quot;RL Model suggests re-routing 4 workers from &apos;Abuja Mall&apos; to &apos;Port Harcourt Bridge&apos; for the night shift to mitigate the predicted 15-hour bottleneck caused by recent rainfall.&quot;
+              <div className="p-5 bg-primary/5 border border-primary/20 rounded-2xl space-y-3 relative overflow-hidden">
+                 <div className="relative z-10">
+                    <h4 className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2 mb-2">
+                       <Briefcase className="w-4 h-4" />
+                       RL-Optimization Tip
+                    </h4>
+                    <p className="text-xs text-foreground/80 font-medium leading-relaxed italic">
+                      "RL Model suggests re-routing 4 workers from Abuja to Port Harcourt night shift to mitigate 15hr bottleneck."
                     </p>
                  </div>
+                 <BrainCircuit className="absolute -right-4 -bottom-4 w-24 h-24 text-primary/5" />
               </div>
+
+              <button className="w-full py-4 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black transition-all shadow-md">
+                GENERATE NEXT-WEEK PLAN
+              </button>
+           </div>
+
+           <div className="bg-white p-6 rounded-2xl border border-border shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                 <h3 className="text-xs font-black text-foreground uppercase tracking-widest">Global Heatmap</h3>
+                 <span className="text-[10px] font-black text-primary uppercase">98.2% Load</span>
+              </div>
+              <div className="h-24 bg-secondary/50 rounded-xl border border-border border-dashed flex items-center justify-center">
+                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Regional Load Viz Block</p>
+              </div>
+           </div>
+        </div>
+
+        {/* Right Column: Site Gantt Chart */}
+        <div className="lg:col-span-8 bg-white rounded-2xl border border-border shadow-sm flex flex-col overflow-hidden">
+           <div className="px-6 py-5 border-b border-border flex justify-between items-center">
+              <h3 className="text-xs font-black text-foreground uppercase tracking-widest flex items-center gap-2">
+                 <Calendar className="w-4 h-4 text-primary" />
+                 Resource Allocation Map
+              </h3>
+              <div className="flex gap-2">
+                 {['D', 'W', 'M'].map((t, i) => (
+                   <button key={t} className={`w-8 h-8 rounded-lg text-[10px] font-black uppercase transition-all ${i === 1 ? 'bg-primary text-white shadow-md' : 'bg-secondary text-muted-foreground hover:bg-muted'}`}>
+                     {t}
+                   </button>
+                 ))}
+              </div>
+           </div>
+           
+           <div className="flex-1 p-6 space-y-10">
+              {sites.map((site, i) => (
+                <div key={i} className="space-y-3 group">
+                   <div className="flex justify-between items-end">
+                      <div>
+                         <h4 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">{site.name}</h4>
+                         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                           {site.crew} • <span className={site.status === 'Critical' ? 'text-red-500' : 'text-primary'}>{site.status.toUpperCase()}</span>
+                         </p>
+                      </div>
+                      <div className="text-right">
+                         <span className="text-xs font-black text-foreground">{site.raw} Workers</span>
+                         <p className="text-[10px] font-bold text-muted-foreground uppercase">{site.trend} vs/Last Week</p>
+                      </div>
+                   </div>
+                   <div className="relative h-12 bg-secondary/50 rounded-xl border border-border overflow-hidden inner-shadow">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${site.load}%` }}
+                        transition={{ duration: 1.5, type: "spring", stiffness: 50 }}
+                        className={`h-full ${site.color} opacity-80 border-r-4 border-white relative flex items-center px-4`}
+                      >
+                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+                         <span className="relative z-10 text-[10px] font-black text-white uppercase tracking-tighter">{site.load}% CAPACITY</span>
+                      </motion.div>
+                      <button className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-white/20 backdrop-blur-md border border-white/30 opacity-0 group-hover:opacity-100 transition-all">
+                        <Maximize2 className="w-4 h-4 text-white" />
+                      </button>
+                   </div>
+                </div>
+              ))}
+           </div>
+
+           <div className="px-6 py-4 bg-secondary/20 border-t border-border flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                 <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Healthy</span>
+                 </div>
+                 <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-red-500" />
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Constraint Found</span>
+                 </div>
+              </div>
+              <button className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
+                VIEW FULL ROSTER <ChevronRight className="w-3 h-3" />
+              </button>
            </div>
         </div>
       </div>
     </div>
   );
 }
+

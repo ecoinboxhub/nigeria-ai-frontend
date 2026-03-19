@@ -12,9 +12,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport = {
+  themeColor: "#2563eb",
+};
+
 export const metadata: Metadata = {
   title: "Nigeria Construction AI Platform",
   description: "Enterprise AI suite for modern construction management",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "StructureOS",
+  },
 };
 
 import Providers from "@/components/providers";
@@ -25,9 +35,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background bg-grid-construction`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}
       >
         <Providers>
           {children}

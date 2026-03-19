@@ -1,141 +1,191 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Eye, 
-  Layers, 
-  Map, 
-  Maximize2, 
   BarChart3, 
-  RefreshCcw,
-  Activity,
-  Play
+  Calendar, 
+  DollarSign, 
+  UploadCloud, 
+  CheckCircle2, 
+  Clock, 
+  ChevronRight,
+  Target,
+  FileText,
+  Scan,
+  Zap,
+  Drone,
+  AlertTriangle,
+  MapPin
 } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+
+const performanceData = [
+  { name: 'Week 1', expected: 10, actual: 8 },
+  { name: 'Week 2', expected: 25, actual: 20 },
+  { name: 'Week 3', expected: 45, actual: 48 },
+  { name: 'Week 4', expected: 60, actual: 65 },
+  { name: 'Week 5', expected: 80, actual: 82 },
+  { name: 'Week 6', expected: 100, actual: 94 },
+];
 
 export default function ProgressVisualizer() {
+  const [activeTab, setActiveTab] = useState("ANALYZE");
+  const tabs = ["ANALYZE", "SCHEDULE", "MILESTONES"];
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Progress Visualizer</h1>
-          <p className="text-muted-foreground">3D BIM Mapping & Computer Vision Integration</p>
+    <div className="max-w-7xl mx-auto space-y-6 pb-12">
+      {/* Header */}
+      <div className="bg-white p-6 rounded-2xl border border-border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex gap-4 items-center">
+           <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+              <Scan className="w-6 h-6 text-primary" />
+           </div>
+           <div>
+              <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest mb-1">
+                <Drone className="w-3 h-3" />
+                <span>CV Drone Pipeline v3.2</span>
+              </div>
+              <h1 className="text-2xl font-black text-foreground tracking-tight uppercase">Progress Visualizer</h1>
+              <p className="text-sm text-muted-foreground font-medium flex items-center gap-1">
+                 <MapPin className="w-3 h-3" /> Eko Atlantic Sector B (Lagos)
+              </p>
+           </div>
         </div>
-        <div className="flex gap-3">
-           <button className="flex items-center gap-2 bg-secondary border border-border px-4 py-2 rounded-xl text-xs font-bold text-muted-foreground hover:text-foreground transition-all">
-              <RefreshCcw className="w-4 h-4" />
-              Sync BIM Data
-           </button>
-           <button className="flex items-center gap-2 bg-primary px-4 py-2 rounded-xl text-xs font-bold text-primary-foreground hover:opacity-90 transition-all shadow-sm">
-              <Play className="w-4 h-4 fill-current" />
-              Run Scan
-           </button>
+        <div className="flex gap-2 bg-secondary/50 p-1.5 rounded-2xl border border-border">
+           {tabs.map((tab) => (
+             <button
+               key={tab}
+               onClick={() => setActiveTab(tab)}
+               className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? 'bg-primary text-white shadow-md' : 'text-muted-foreground hover:bg-white/50'}`}
+             >
+               {tab}
+             </button>
+           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-         {/* Live Feeds */}
-         <div className="lg:col-span-3 space-y-6">
-            <div className="aspect-video bg-secondary rounded-3xl border border-border relative overflow-hidden flex items-center justify-center group shadow-sm">
-               <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=1470&auto=format&fit=crop')] bg-cover bg-center grayscale-0 opacity-80" />
-               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-80" />
-               
-               {/* 3D Wireframe Overlay */}
-               <div className="absolute inset-0 bg-grid-construction opacity-20 pointer-events-none mix-blend-multiply" />
-               
-               {/* AI Detected Objects */}
-               <motion.div 
-                 initial={{ opacity: 0, scale: 0.8 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 className="absolute top-1/4 left-1/3 w-32 h-24 border-2 border-primary rounded-lg flex flex-col justify-end p-2 shadow-lg shadow-primary/20 bg-primary/10 backdrop-blur-sm"
-               >
-                  <span className="text-[10px] bg-primary text-primary-foreground font-black px-2 py-0.5 rounded w-fit absolute -top-4 -left-[2px]">Concrete Slab (94%)</span>
-               </motion.div>
-
-               <div className="absolute bottom-6 left-6 right-6 flex justify-between items-center text-white z-10">
-                  <div className="flex items-center gap-4">
-                     <div className="p-3 bg-black/40 backdrop-blur-md rounded-2xl border border-white/20">
-                        <Activity className="w-5 h-5 text-primary" />
-                     </div>
-                     <div>
-                        <p className="font-bold text-sm drop-shadow-md">Site Entrance A-1</p>
-                        <p className="text-[10px] text-white/80 uppercase font-black drop-shadow-md">Live Stream • 0.2s Latency</p>
-                     </div>
-                  </div>
-                  <button className="p-3 bg-black/40 backdrop-blur-md rounded-2xl border border-white/20 hover:scale-110 transition-transform">
-                     <Maximize2 className="w-5 h-5" />
-                  </button>
-               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-6 glass rounded-2xl">
-                   <h3 className="text-xs font-bold text-muted-foreground uppercase mb-4 flex items-center gap-2">
-                     <Layers className="w-4 h-4 text-primary" />
-                     BIM vs Actual Offset
-                   </h3>
-                   <div className="flex items-center gap-8">
-                      <div className="text-center">
-                         <p className="text-2xl font-black text-foreground">-4.2cm</p>
-                         <p className="text-[10px] text-red-500 font-bold uppercase">Vertical Dev</p>
-                      </div>
-                      <div className="text-center">
-                         <p className="text-2xl font-black text-foreground">+0.8cm</p>
-                         <p className="text-[10px] text-green-500 font-bold uppercase">Alignment</p>
-                      </div>
-                   </div>
-                </div>
-                <div className="p-6 glass rounded-2xl">
-                   <h3 className="text-xs font-bold text-muted-foreground uppercase mb-4 flex items-center gap-2">
-                     <BarChart3 className="w-4 h-4 text-primary" />
-                     Completion Timeline
-                   </h3>
-                   <div className="h-2 bg-secondary rounded-full overflow-hidden flex border border-border">
-                      <div className="h-full bg-primary w-3/4" />
-                      <div className="h-full bg-muted w-1/4" />
-                   </div>
-                   <div className="mt-2 flex justify-between text-[10px] font-bold">
-                      <span className="text-muted-foreground uppercase">Phase 1: Foundation</span>
-                      <span className="text-primary">75% Complete</span>
-                   </div>
-                </div>
-            </div>
-         </div>
-
-         {/* Site Map Side */}
-         <div className="space-y-6">
-            <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest pl-1">Site Overview</h2>
-            <div className="aspect-square bg-card rounded-3xl border border-border relative overflow-hidden shadow-sm">
-               <div className="absolute inset-0 bg-grid-construction opacity-30 p-12">
-                  <div className="w-full h-full relative">
-                     <motion.div 
-                       animate={{ scale: [1, 1.2, 1] }} 
-                       title="Computer Vision analysis confirms 92% adherence to BIM blueprint. 0 critical structural deviations detected since last flight."
-                     className="absolute left-1/4 top-1/2 w-4 h-4 bg-primary rounded-full shadow-[0_0_15px_rgba(250,204,21,0.6)] cursor-help" 
-                     />
-                     <div className="absolute left-3/4 top-1/4 w-3 h-3 bg-blue-500 rounded-full opacity-60" />
-                     <div className="absolute left-1/2 top-1/3 w-3 h-3 bg-red-500 rounded-full opacity-60" />
-                  </div>
-               </div>
-               <div className="absolute bottom-4 left-4 right-4">
-                  <div className="p-3 bg-card backdrop-blur-md rounded-xl border border-border flex items-center gap-3 shadow-md">
-                     <Map className="w-4 h-4 text-primary" />
-                     <span className="text-xs font-bold text-foreground uppercase">Satellite Overlay</span>
-                  </div>
-               </div>
-            </div>
-
-            <div className="p-6 glass rounded-2xl space-y-4">
-               <h3 className="text-[10px] font-bold text-muted-foreground uppercase">Layer Selection</h3>
-               <div className="space-y-2">
-                  {["Blueprint Layout", "Structural Steel", "HVAC Systems", "Electrical Grid"].map((layer, i) => (
-                    <div key={i} className="flex justify-between items-center bg-secondary px-4 py-2 rounded-lg cursor-pointer hover:bg-muted border border-border transition-all">
-                       <span className="text-xs text-foreground font-medium">{layer}</span>
-                       <div className={`w-3 h-3 rounded-full border-2 ${i === 0 ? "bg-primary border-primary" : "border-muted-foreground/30 bg-background"}`} />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Main Analytics */}
+        <div className="lg:col-span-8 space-y-6">
+           <div className="bg-white p-6 rounded-2xl border border-border shadow-sm">
+              <div className="flex justify-between items-center mb-8">
+                 <h3 className="text-xs font-black text-foreground uppercase tracking-widest">Project Evolution (Nigeria North Hub)</h3>
+                 <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5">
+                       <div className="w-2 h-2 rounded-full bg-primary" />
+                       <span className="text-[10px] font-bold text-muted-foreground uppercase">Expected</span>
                     </div>
-                  ))}
-               </div>
-            </div>
-         </div>
+                    <div className="flex items-center gap-1.5">
+                       <div className="w-2 h-2 rounded-full bg-slate-900" />
+                       <span className="text-[10px] font-bold text-muted-foreground uppercase">Actual</span>
+                    </div>
+                 </div>
+              </div>
+              <div className="h-80 w-full">
+                 <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={performanceData}>
+                       <defs>
+                          <linearGradient id="colorExpected" x1="0" y1="0" x2="0" y2="1">
+                             <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
+                             <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
+                             <stop offset="5%" stopColor="#0f172a" stopOpacity={0.1}/>
+                             <stop offset="95%" stopColor="#0f172a" stopOpacity={0}/>
+                          </linearGradient>
+                       </defs>
+                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontWeight: 'black', fill: '#64748b' }} dy={10} />
+                       <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fontWeight: 'black', fill: '#64748b' }} />
+                       <Tooltip 
+                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontWeight: 'black', fontSize: '10px' }}
+                       />
+                       <Area type="monotone" dataKey="expected" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorExpected)" />
+                       <Area type="monotone" dataKey="actual" stroke="#0f172a" strokeWidth={3} fillOpacity={1} fill="url(#colorActual)" />
+                    </AreaChart>
+                 </ResponsiveContainer>
+              </div>
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white p-6 rounded-2xl border border-border shadow-sm flex items-start gap-4">
+                 <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center border border-amber-100 shrink-0">
+                    <AlertTriangle className="w-5 h-5 text-amber-600" />
+                 </div>
+                 <div>
+                    <h4 className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Schedule Delay</h4>
+                    <p className="text-xl font-black text-foreground">3 Days Latency</p>
+                    <p className="text-[10px] text-muted-foreground font-medium mt-1 leading-relaxed">
+                       Sector B roofing delayed due to heavy rainfall in Lagos coastal corridor.
+                    </p>
+                 </div>
+              </div>
+              <div className="bg-slate-900 p-6 rounded-2xl shadow-xl flex items-start gap-4 group">
+                 <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20 shrink-0 group-hover:bg-primary transition-all">
+                    <Target className="w-5 h-5 text-white" />
+                 </div>
+                 <div>
+                    <h4 className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">AI Recommendation</h4>
+                    <p className="text-sm font-bold text-white leading-relaxed">
+                       Deploy extra night shift for the North Wing to recover the latent schedule.
+                    </p>
+                 </div>
+              </div>
+           </div>
+        </div>
+
+        {/* CV Visualization / Photo Panel */}
+        <div className="lg:col-span-4 space-y-6">
+           <div className="bg-white p-6 rounded-2xl border border-border shadow-sm flex flex-col h-full space-y-6">
+              <h3 className="text-xs font-black text-foreground uppercase tracking-widest">Drone Intelligence View</h3>
+              
+              <div className="relative aspect-video rounded-xl bg-slate-900 overflow-hidden group cursor-crosshair">
+                 <img src="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80" className="w-full h-full object-cover opacity-60 grayscale group-hover:grayscale-0 transition-all duration-700" alt="site" />
+                 
+                 {/* Simulated CV Overlays */}
+                 <div className="absolute inset-0 p-4">
+                    <div className="absolute top-1/4 left-1/4 w-32 h-24 border-2 border-primary/60 rounded-sm">
+                       <span className="absolute -top-6 left-0 text-[8px] font-black bg-primary text-white px-1 py-0.5 rounded uppercase">Foundation (98%)</span>
+                    </div>
+                    <div className="absolute top-1/2 right-1/4 w-48 h-32 border-2 border-red-500/60 rounded-sm animate-pulse">
+                       <span className="absolute -top-6 left-0 text-[8px] font-black bg-red-500 text-white px-1 py-0.5 rounded uppercase tracking-tighter">Delay: Structural Load (32%)</span>
+                    </div>
+                 </div>
+
+                 <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/20">
+                    <p className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                       <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
+                       CV PIPELINE ACTIVE
+                    </p>
+                 </div>
+              </div>
+
+              <div className="space-y-4">
+                 <button className="w-full py-4 bg-secondary/50 rounded-xl border border-border border-dashed flex flex-col items-center justify-center p-6 hover:bg-secondary hover:border-primary/50 transition-all group">
+                    <UploadCloud className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors mb-2" />
+                    <span className="text-[10px] font-black text-foreground uppercase tracking-widest">Upload Sector Imagery</span>
+                    <span className="text-[9px] text-muted-foreground font-medium mt-1">Supports drone logs (DNG/ZIP)</span>
+                 </button>
+
+                 <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
+                    <div className="flex items-center justify-between mb-3">
+                       <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Recent Processing</span>
+                       <span className="text-[9px] font-black text-blue-400 uppercase">2m ago</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                       <div className="w-10 h-10 rounded-lg bg-white overflow-hidden border border-blue-100 shadow-sm shrink-0">
+                          <img src="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=100&h=100&auto=format&fit=crop" className="w-full h-full object-cover" alt="thumb" />
+                       </div>
+                       <div className="flex-1 min-w-0">
+                          <p className="text-[10px] font-black text-foreground truncate uppercase">Sector_B_Drone_Flight_N.zip</p>
+                          <p className="text-[9px] text-blue-600/70 font-black uppercase tracking-tighter">AI Analysis: SUCCESS</p>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
       </div>
     </div>
   );

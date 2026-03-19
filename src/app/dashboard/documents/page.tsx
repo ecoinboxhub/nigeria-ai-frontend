@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText, 
   Search, 
@@ -11,134 +12,179 @@ import {
   Hash,
   Filter,
   FileSearch,
-  ExternalLink
+  ExternalLink,
+  Bot,
+  Scale,
+  ShieldCheck,
+  ChevronRight
 } from "lucide-react";
-
-const documents = [
-  { id: "DOC-9921", name: "Structural Integrity Report.pdf", type: "Inspection", date: "Today, 10:45", status: "Analyzed", risk: "Low" },
-  { id: "DOC-9845", name: "Lagos Waterfront Foundation.dwg", type: "Blueprint", date: "Yesterday", status: "Processing", risk: "N/A" },
-  { id: "DOC-9712", name: "Quality Assurance Cert.pdf", type: "Compliance", date: "3 days ago", status: "Flagged", risk: "High" },
-  { id: "DOC-9654", name: "Health & Safety Protocol.docx", type: "Manual", date: "1 week ago", status: "Analyzed", risk: "None" },
-];
+import { COMPLIANCE_LOGS } from "@/lib/dummy_data";
 
 export default function DocumentAnalyzer() {
+  const [query, setQuery] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const handleSearch = () => {
+    setIsAnalyzing(true);
+    setTimeout(() => setIsAnalyzing(false), 2000);
+  };
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      <div className="flex justify-between items-end">
+    <div className="max-w-7xl mx-auto space-y-6 pb-12">
+      {/* Header Section */}
+      <div className="bg-white p-6 rounded-2xl border border-border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Document Analysis</h1>
-          <p className="text-white/40">AI OCR & Semantic Intelligence Repository</p>
+          <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest mb-1">
+            <Scale className="w-3 h-3" />
+            <span>Legal-RAG Intelligence System</span>
+          </div>
+          <h1 className="text-2xl font-black text-foreground tracking-tight">DOCUMENT INTELLIGENCE</h1>
+          <p className="text-sm text-muted-foreground font-medium italic">Compliant with National Building Code (NBC 2023) & COREN Act</p>
         </div>
-        <div className="flex gap-2">
-           <div className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl flex items-center gap-2">
-              <FileSearch className="w-4 h-4 text-orange-500" />
-              <span className="text-xs font-bold text-white/80">3,421 Indexed Docs</span>
-           </div>
+        <div className="flex gap-2 w-full md:w-auto">
+           <button className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-secondary/50 px-4 py-2 rounded-xl text-xs font-bold text-foreground hover:bg-secondary transition-all border border-border">
+             <Filter className="w-4 h-4" />
+             FILTER DOCS
+           </button>
+           <button className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-primary px-4 py-2 rounded-xl text-xs font-bold text-primary-foreground hover:opacity-90 shadow-lg shadow-primary/20 transition-all">
+             <Bot className="w-4 h-4" />
+             ASK LEGAL AI
+           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-         {/* AI Search & Filter */}
-         <div className="lg:col-span-1 space-y-6">
-            <div className="p-6 glass rounded-2xl border border-white/5 space-y-6">
-               <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-white/40 uppercase pl-1">Semantic Search</label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-                    <input 
-                      type="text" 
-                      placeholder="Ask about materials..."
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-9 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-orange-500/50"
-                    />
-                  </div>
-               </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left: AI RAG Search & Vector Store */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="bg-slate-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl">
+             <div className="absolute top-0 right-0 p-12 opacity-10">
+               <Bot className="w-64 h-64 text-white" />
+             </div>
+             
+             <div className="relative z-10 space-y-6">
+                <div className="max-w-xl">
+                   <h2 className="text-2xl font-black mb-2 flex items-center gap-3">
+                     <Hash className="w-6 h-6 text-primary" />
+                     Semantic Legal Search
+                   </h2>
+                   <p className="text-slate-400 text-sm font-medium leading-relaxed mb-6">
+                     Query your project documents against the 2023 Nigerian National Building Code using our vectorized Legal-RAG pipeline.
+                   </p>
+                </div>
 
-               <div className="space-y-4">
-                  <h3 className="text-[10px] font-bold text-white/40 uppercase pl-1 flex items-center gap-2">
-                     <Filter className="w-3 h-3" /> Filters
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                     {["Blueprints", "Contracts", "Reports", "Compliance"].map(f => (
-                       <button key={f} className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-white/60 hover:text-white hover:bg-white/10 transition-all uppercase">
-                          {f}
-                       </button>
-                     ))}
-                  </div>
-               </div>
+                <div className="flex gap-2">
+                   <div className="relative flex-1">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                      <input 
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="e.g. 'What are the fire exit requirements for a 12-story commercial core?'"
+                        className="w-full bg-white/10 border border-white/20 rounded-2xl px-12 py-4 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                      />
+                   </div>
+                   <button 
+                    onClick={handleSearch}
+                    disabled={isAnalyzing}
+                    className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg"
+                   >
+                     {isAnalyzing ? "Vectorizing..." : "ANALYZE"}
+                   </button>
+                </div>
 
-               <div className="p-4 bg-orange-500/5 border border-orange-500/10 rounded-2xl">
-                  <p className="text-[10px] text-orange-500 font-bold uppercase mb-2">AI Summary Tip</p>
-                  <p className="text-xs text-white/60 italic leading-relaxed">
-                    &quot;Search for &apos;Lagos concrete fatigue&apos; to find all structural test reports from the last quarter.&quot;
-                  </p>
-               </div>
+                <AnimatePresence>
+                  {isAnalyzing && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        Scanning 4,821 vector nodes for NBC 2023 compliance matches...
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+             </div>
+          </div>
+
+          {/* Compliance List */}
+          <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-border flex justify-between items-center">
+              <h3 className="text-xs font-black text-foreground uppercase tracking-widest">Compliance Audit Logs</h3>
+              <span className="text-[9px] font-black text-primary bg-primary/5 px-2 py-1 rounded">FILTER: NIGERIA</span>
             </div>
-
-            <div className="p-8 glass rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-center space-y-3 cursor-pointer group hover:border-orange-500/20 transition-all">
-               <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-orange-500/10 transition-all">
-                  <Hash className="w-6 h-6 text-white/20 group-hover:text-orange-500" />
-               </div>
-               <p className="text-xs font-bold text-white/60">Upload & Vectorize</p>
-            </div>
-         </div>
-
-         {/* Document List */}
-         <div className="lg:col-span-3 space-y-4">
-            <div className="flex justify-between items-center mb-2 px-1">
-               <h2 className="text-xs font-bold text-white/40 uppercase tracking-widest pl-1">Recent Intelligence Scans</h2>
-               <button className="text-[10px] font-bold text-orange-500 hover:text-orange-400 uppercase">View All Index</button>
-            </div>
-            
-            <div className="space-y-3">
-               {documents.map((doc, idx) => (
-                 <motion.div 
-                   key={doc.id}
-                   initial={{ opacity: 0, scale: 0.98 }}
-                   animate={{ opacity: 1, scale: 1 }}
-                   transition={{ delay: idx * 0.05 }}
-                   className="p-5 glass rounded-2xl border border-white/5 flex items-center justify-between hover:border-white/10 transition-all cursor-pointer group"
-                 >
-                    <div className="flex items-center gap-5">
-                       <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-white/20" />
+            <div className="divide-y divide-border">
+               {COMPLIANCE_LOGS.map((log) => (
+                 <div key={log.id} className="p-4 flex items-center justify-between hover:bg-secondary/20 transition-all group">
+                    <div className="flex items-center gap-4">
+                       <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center border border-border group-hover:border-primary/20">
+                          <FileText className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                        </div>
                        <div>
-                          <div className="flex items-center gap-2 mb-0.5">
-                             <h3 className="font-bold text-white">{doc.name}</h3>
-                             <span className="text-[8px] bg-white/10 text-white/60 px-1.5 py-0.5 rounded uppercase tracking-tighter">{doc.id}</span>
-                          </div>
-                          <p className="text-[10px] text-white/30 font-medium uppercase">{doc.type} • Indexed {doc.date}</p>
+                          <p className="text-sm font-bold text-foreground">{log.type} Section {log.section}</p>
+                          <p className="text-[10px] font-medium text-muted-foreground">{log.details}</p>
                        </div>
                     </div>
-
-                    <div className="flex items-center gap-8">
-                       <div className="flex items-center gap-12">
-                          <div className="text-right">
-                             <p className="text-[10px] font-bold text-white/40 uppercase">AI Status</p>
-                             <div className="flex items-center gap-1.5 justify-end">
-                                {doc.status === "Flagged" ? <AlertCircle className="w-3 h-3 text-red-500" /> : doc.status === "Processing" ? <Clock className="w-3 h-3 text-orange-500 animate-pulse" /> : <CheckCircle className="w-3 h-3 text-green-500" />}
-                                <span className={`text-xs font-bold ${doc.status === "Flagged" ? "text-red-500" : doc.status === "Processing" ? "text-orange-500" : "text-white/60"}`}>{doc.status}</span>
-                             </div>
-                          </div>
-                          <div className="text-right w-16">
-                             <p className="text-[10px] font-bold text-white/40 uppercase font-black">Risk</p>
-                             <p className={`text-xs font-bold ${doc.risk === "High" ? "text-red-500" : "text-white/40"}`}>{doc.risk}</p>
-                          </div>
-                       </div>
-                       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="p-2.5 bg-white/5 rounded-xl border border-white/5 text-white/40 hover:text-white transition-all">
-                             <Download className="w-4 h-4" />
-                          </button>
-                          <button className="p-2.5 bg-white/5 rounded-xl border border-white/5 text-white/40 hover:text-white transition-all">
-                             <ExternalLink className="w-4 h-4" />
-                          </button>
-                       </div>
+                    <div className="flex items-center gap-6">
+                       <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${log.status === 'Pass' ? 'text-green-600 bg-green-50' : 'text-amber-600 bg-amber-50'}`}>
+                         {log.status}
+                       </span>
+                       <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
+                         <ChevronRight className="w-4 h-4" />
+                       </button>
                     </div>
-                 </motion.div>
+                 </div>
                ))}
             </div>
-         </div>
+          </div>
+        </div>
+
+        {/* Right: Document Repository Summary */}
+        <div className="lg:col-span-4 space-y-6">
+           <div className="bg-white rounded-2xl border border-border shadow-sm p-6 space-y-6">
+              <h3 className="text-xs font-black text-foreground uppercase tracking-widest">Repository Insights</h3>
+              
+              <div className="space-y-4">
+                 {[
+                   { label: "Indexed Pages", val: "14,821", icon: Hash },
+                   { label: "Analyzed Blueprints", val: "842", icon: FileSearch },
+                   { label: "Legal Citations", val: "2,109", icon: Scale },
+                 ].map((stat, i) => (
+                   <div key={i} className="flex justify-between items-center p-3 rounded-xl bg-secondary/30">
+                      <div className="flex items-center gap-2">
+                        <stat.icon className="w-4 h-4 text-primary" />
+                        <span className="text-xs font-bold">{stat.label}</span>
+                      </div>
+                      <span className="text-xs font-black">{stat.val}</span>
+                   </div>
+                 ))}
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                 <button className="w-full py-3 bg-secondary/50 border border-border rounded-xl text-[10px] font-black text-foreground uppercase tracking-widest hover:bg-secondary transition-all shadow-sm">
+                   UPLOAD NEW BATCH
+                 </button>
+              </div>
+           </div>
+
+           <div className="bg-primary/10 rounded-2xl p-6 border border-primary/20 relative overflow-hidden flex flex-col justify-center min-h-[160px]">
+              <div className="relative z-10">
+                 <h4 className="text-sm font-black text-primary uppercase tracking-widest mb-1">Vectorization Status</h4>
+                 <p className="text-[10px] font-bold text-primary/80 mb-4 uppercase">Nigerian Building Standards v4.2</p>
+                 <div className="w-full h-1.5 bg-white/50 rounded-full overflow-hidden mb-2">
+                    <div className="h-full bg-primary" style={{ width: "88%" }} />
+                 </div>
+                 <div className="flex justify-between items-center text-[9px] font-black text-primary uppercase">
+                    <span>88% Indexed</span>
+                    <span>1,204 Nodes Remaining</span>
+                 </div>
+              </div>
+              <ShieldCheck className="absolute -right-4 -bottom-4 w-32 h-32 text-primary/5" />
+           </div>
+        </div>
       </div>
     </div>
   );
 }
+
