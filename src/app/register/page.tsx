@@ -43,7 +43,7 @@ export default function RegisterPage() {
     try {
       setLoading(true);
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
+        provider: provider as any,
         options: {
           redirectTo: `${window.location.origin}/dashboard/projects`
         }
