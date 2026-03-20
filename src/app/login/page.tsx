@@ -28,7 +28,8 @@ export default function LoginPage() {
       localStorage.setItem("token", res.data.access_token);
       router.push("/dashboard/projects");
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Authentication failed. Node unreachable.");
+      const detail = err.response?.data?.detail || "Authentication failed. Node unreachable.";
+      setError(typeof detail === 'object' ? JSON.stringify(detail) : detail);
     } finally {
       setLoading(false);
     }
@@ -45,7 +46,8 @@ export default function LoginPage() {
       });
       if (error) throw error;
     } catch (err: any) {
-      setError(`Auth failed: ${err.message}`);
+      const msg = err.message || "Auth failed";
+      setError(typeof msg === 'object' ? JSON.stringify(msg) : msg);
     } finally {
       setLoading(false);
     }
@@ -60,10 +62,10 @@ export default function LoginPage() {
            <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20">
               <HardHat className="w-6 h-6 text-white" />
            </div>
-           <div className="flex flex-col">
-              <span className="text-lg font-black tracking-tighter text-foreground leading-none">STRUCTURE.AI</span>
-              <span className="text-[8px] font-black text-primary tracking-[0.2em] uppercase">Nigeria Workspace</span>
-           </div>
+            <div className="flex flex-col">
+               <span className="text-lg font-black tracking-tighter text-foreground leading-none">ConstructionAI</span>
+               <span className="text-[8px] font-black text-primary tracking-[0.2em] uppercase">ConstructionAI WorkSpace</span>
+            </div>
         </div>
 
         <motion.div 
@@ -171,18 +173,10 @@ export default function LoginPage() {
 
           <div className="mt-8 text-center">
              <p className="text-xs text-muted-foreground font-medium">
-                New to the platform? <Link href="/register" className="text-primary font-black uppercase hover:underline">Provision Identity</Link>
+                New to the platform? <Link href="/register" className="text-primary font-black uppercase hover:underline">User Registration</Link>
              </p>
           </div>
 
-          <div className="mt-12 flex items-center gap-4 p-4 bg-slate-50 border border-border rounded-2xl">
-             <div className="w-8 h-8 rounded-lg bg-white border border-border flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-4 h-4 text-primary" />
-             </div>
-             <p className="text-[9px] font-bold text-muted-foreground leading-tight">
-                This session is encrypted using 256-bit AES. Access is monitored and logged in the audit module.
-             </p>
-          </div>
         </motion.div>
 
         {/* Footer info */}
@@ -191,7 +185,7 @@ export default function LoginPage() {
               <Terminal className="w-3 h-3" />
               <span>System: ONLINE</span>
            </div>
-           <span>STRUCTURE.AI v4.0</span>
+           <span>ConstructionAI v4.0</span>
         </div>
       </div>
 

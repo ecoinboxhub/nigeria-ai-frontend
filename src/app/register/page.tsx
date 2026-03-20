@@ -33,7 +33,8 @@ export default function RegisterPage() {
       // After registration, redirect to login
       router.push("/login?registered=true");
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Registration failed. Verification node timeout.");
+      const detail = err.response?.data?.detail || "Registration failed. Verification node timeout.";
+      setError(typeof detail === 'object' ? JSON.stringify(detail) : detail);
     } finally {
       setLoading(false);
     }
@@ -50,7 +51,8 @@ export default function RegisterPage() {
       });
       if (error) throw error;
     } catch (err: any) {
-      setError(`Auth failed: ${err.message}`);
+      const msg = err.message || "Auth failed";
+      setError(typeof msg === 'object' ? JSON.stringify(msg) : msg);
     } finally {
       setLoading(false);
     }
@@ -65,10 +67,10 @@ export default function RegisterPage() {
            <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20">
               <HardHat className="w-6 h-6 text-white" />
            </div>
-           <div className="flex flex-col">
-              <span className="text-lg font-black tracking-tighter text-foreground leading-none">STRUCTURE.AI</span>
-              <span className="text-[8px] font-black text-primary tracking-[0.2em] uppercase">Identity Service</span>
-           </div>
+            <div className="flex flex-col">
+               <span className="text-lg font-black tracking-tighter text-foreground leading-none">ConstructionAI</span>
+               <span className="text-[8px] font-black text-primary tracking-[0.2em] uppercase">Identity Service</span>
+            </div>
         </div>
 
         <motion.div 
@@ -196,7 +198,7 @@ export default function RegisterPage() {
         </motion.div>
 
         <div className="flex justify-between items-center text-[8px] font-black text-slate-400 uppercase tracking-widest mt-12">
-           <span>STRUCTURE.AI v4.0</span>
+           <span>ConstructionAI v4.0</span>
            <span>SECURE ENDPOINT: HUB-LAG-01</span>
         </div>
       </div>

@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { user, access_token } = session;
       const res = await api.post("/auth/social-sync", {
         email: user.email,
-        full_name: user.user_metadata?.full_name || user.email.split("@")[0],
+        username: user.user_metadata?.full_name || user.email.split("@")[0],
         provider: user.app_metadata?.provider || "email",
         supabase_id: user.id
       });
