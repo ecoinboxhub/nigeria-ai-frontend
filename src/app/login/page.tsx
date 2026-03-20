@@ -35,13 +35,23 @@ export default function LoginPage() {
     }
   };
 
+  const getURL = () => {
+    let url =
+      process?.env?.NEXT_PUBLIC_SITE_URL ?? 
+      process?.env?.NEXT_PUBLIC_VERCEL_URL ?? 
+      'http://localhost:3000/';
+    url = url.includes('http') ? url : `https://${url}`;
+    url = url.charAt(url.length - 1) === '/' ? url : `${url}/`;
+    return url;
+  };
+
   const handleSocialLogin = async (provider: 'google' | 'github') => {
     try {
       setLoading(true);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: provider as Provider,
         options: {
-          redirectTo: `${window.location.origin}/dashboard/projects`
+          redirectTo: `${getURL()}dashboard/projects`
         }
       });
       if (error) throw error;
