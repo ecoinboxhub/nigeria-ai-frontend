@@ -56,7 +56,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const syncWithBackend = async (session: any) => {
     try {
-      const { user, access_token } = session;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://nigeria-ai-backend.onrender.com/api/v1';
+      console.log("[AuthContext] Syncing with backend at:", apiUrl);
+      
+      const { user } = session;
       const res = await api.post("/auth/social-sync", {
         email: user.email,
         username: user.user_metadata?.full_name || user.email.split("@")[0],
@@ -64,12 +67,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         supabase_id: user.id
       });
 
+      console.log("[AuthContext] Sync successful:", res.data);
       if (res.data.access_token) {
         localStorage.setItem("token", res.data.access_token);
-        console.log("Backend sync successful");
       }
-    } catch (error) {
-      console.error("Failed to sync with backend:", error);
+    } catch (err: any) {
+      console.error("[AuthContext] Sync failed!");
+      if (err.response) {
+        console.error("Data:", err.response.data);
+        console.error("Status:", err.response.status);
+      } else if (err.request) {
+        console.error("No response received from backend. Check CORS or if backend is UP.");
+        console.error("Request Details:", err.request);
+      } else {
+        console.error("Error setting up request:", err.message);
+      }
     }
   };
 
