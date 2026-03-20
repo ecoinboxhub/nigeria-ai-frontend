@@ -40,7 +40,7 @@ export default function RegisterPage() {
     }
   };
 
-  const handleSocialLogin = async (provider: 'google' | 'github' | 'yahoo') => {
+  const handleSocialLogin = async (provider: 'google' | 'github') => {
     try {
       setLoading(true);
       const { data, error } = await supabase.auth.signInWithOAuth({
@@ -165,7 +165,7 @@ export default function RegisterPage() {
               <div className="h-px bg-border flex-1" />
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
                <button 
                 onClick={() => handleSocialLogin('google')}
                 className="flex items-center justify-center gap-2 p-3 border border-border rounded-xl hover:bg-slate-50 transition-all"
@@ -179,13 +179,6 @@ export default function RegisterPage() {
                >
                   <Github className="w-4 h-4" />
                   <span className="text-[8px] font-black text-foreground">GITHUB</span>
-               </button>
-               <button 
-                onClick={() => handleSocialLogin('yahoo' as any)}
-                className="flex items-center justify-center gap-2 p-3 border border-border rounded-xl hover:bg-slate-50 transition-all"
-               >
-                  <Mail className="w-4 h-4" />
-                  <span className="text-[8px] font-black text-foreground">YAHOO</span>
                </button>
             </div>
           </div>
