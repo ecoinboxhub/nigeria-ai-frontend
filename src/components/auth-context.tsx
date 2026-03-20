@@ -74,8 +74,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (err: any) {
       console.error("[AuthContext] Sync failed!");
       if (err.response) {
-        console.error("Data:", err.response.data);
-        console.error("Status:", err.response.status);
+        console.error("HTTP status:", err.response.status);
+        console.error("Error response data:", err.response.data);
+        const detail = err.response.data?.detail || "Unknown backend error";
+        console.error("Backend Error Detail:", detail);
       } else if (err.request) {
         console.error("No response received from backend. Check CORS or if backend is UP.");
         console.error("Request Details:", err.request);
