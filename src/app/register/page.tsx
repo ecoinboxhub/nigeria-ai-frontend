@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Lock, User, Loader2, HardHat, ArrowRight, ShieldCheck, Mail, Github, Chrome } from "lucide-react";
+import { Lock, User, Loader2, HardHat, ArrowRight, ShieldCheck, Mail, Github, Chrome, Terminal } from "lucide-react";
 import Link from "next/link";
 import api from "@/lib/api";
-import { createClient } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import type { Provider } from "@supabase/supabase-js";
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ export default function RegisterPage() {
     try {
       setLoading(true);
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: provider as any,
+        provider: provider as Provider,
         options: {
           redirectTo: `${window.location.origin}/dashboard/projects`
         }

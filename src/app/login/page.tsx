@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Lock, User, Loader2, HardHat, ArrowRight, ShieldCheck, Terminal } from "lucide-react";
 import api from "@/lib/api";
 import { supabase } from "@/lib/supabase";
+import type { Provider } from "@supabase/supabase-js";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -37,7 +38,7 @@ export default function LoginPage() {
     try {
       setLoading(true);
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: provider as any,
+        provider: provider as Provider,
         options: {
           redirectTo: `${window.location.origin}/dashboard/projects`
         }
