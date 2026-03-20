@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Lock, User, Loader2, HardHat, ArrowRight, ShieldCheck, Terminal } from "lucide-react";
 import api from "@/lib/api";
+import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
   const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -17,7 +18,6 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    // Read form values (using refs or state, but here I'll use target for simplicity since it's a small form)
     const target = e.target as any;
     const email = target[0].value;
     const password = target[1].value;
@@ -28,6 +28,23 @@ export default function LoginPage() {
       router.push("/dashboard/projects");
     } catch (err: any) {
       setError(err.response?.data?.detail || "Authentication failed. Node unreachable.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider: 'google' | 'github' | 'yahoo') => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/dashboard/projects`
+        }
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      setError(`Auth failed: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -53,7 +70,7 @@ export default function LoginPage() {
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-sm mx-auto my-auto"
         >
-          <div className="mb-12">
+          <div className="mb-10">
             <h1 className="text-4xl font-black text-foreground mb-3 tracking-tighter uppercase">
               Identity <br />Verification.
             </h1>
@@ -63,6 +80,12 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-[10px] font-black uppercase tracking-widest text-center">
+                {error}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <div className="flex justify-between pl-1">
                  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Work Email</label>
@@ -82,7 +105,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between pl-1">
                  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Private Key</label>
-                 <a href="#" className="text-[10px] font-black text-primary hover:underline transition-all">RECOVER</a>
+                 <a href="#" className="text-[10px] font-black text-primary hover:underline transition-all uppercase">RECOVER</a>
               </div>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -97,7 +120,7 @@ export default function LoginPage() {
 
             <button 
               disabled={loading}
-              className="w-full bg-primary text-white font-black text-[10px] uppercase tracking-[0.2em] py-5 rounded-2xl shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-10"
+              className="w-full bg-primary text-white font-black text-[10px] uppercase tracking-[0.2em] py-5 rounded-2xl shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-6"
             >
               {loading ? (
                 <div className="flex items-center gap-2">
@@ -112,6 +135,44 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+
+          <div className="mt-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-px bg-border flex-1" />
+              <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">or secure link</span>
+              <div className="h-px bg-border flex-1" />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+               <button 
+                onClick={() => handleSocialLogin('google')}
+                className="flex items-center justify-center gap-2 p-3 border border-border rounded-xl hover:bg-slate-50 transition-all flex-col sm:flex-row"
+               >
+                  <Terminal className="w-4 h-4 text-primary" />
+                  <span className="text-[8px] font-black text-foreground">GMAIL</span>
+               </button>
+               <button 
+                onClick={() => handleSocialLogin('github')}
+                className="flex items-center justify-center gap-2 p-3 border border-border rounded-xl hover:bg-slate-50 transition-all flex-col sm:flex-row"
+               >
+                  <Terminal className="w-4 h-4 text-primary" />
+                  <span className="text-[8px] font-black text-foreground">GITHUB</span>
+               </button>
+               <button 
+                onClick={() => handleSocialLogin('yahoo' as any)}
+                className="flex items-center justify-center gap-2 p-3 border border-border rounded-xl hover:bg-slate-50 transition-all flex-col sm:flex-row"
+               >
+                  <Terminal className="w-4 h-4 text-primary" />
+                  <span className="text-[8px] font-black text-foreground">YAHOO</span>
+               </button>
+            </div>
+          </div>
+
+          <div className="mt-8 text-center">
+             <p className="text-xs text-muted-foreground font-medium">
+                New to the platform? <Link href="/register" className="text-primary font-black uppercase hover:underline">Provision Identity</Link>
+             </p>
+          </div>
 
           <div className="mt-12 flex items-center gap-4 p-4 bg-slate-50 border border-border rounded-2xl">
              <div className="w-8 h-8 rounded-lg bg-white border border-border flex items-center justify-center shrink-0">

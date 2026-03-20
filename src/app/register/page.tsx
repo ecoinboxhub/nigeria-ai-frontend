@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import { Lock, User, Loader2, HardHat, ArrowRight, ShieldCheck, Mail, Github, Chrome } from "lucide-react";
 import Link from "next/link";
 import api from "@/lib/api";
+import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
@@ -32,6 +34,23 @@ export default function RegisterPage() {
       router.push("/login?registered=true");
     } catch (err: any) {
       setError(err.response?.data?.detail || "Registration failed. Verification node timeout.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider: 'google' | 'github' | 'yahoo') => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/dashboard/projects`
+        }
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      setError(`Auth failed: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -68,7 +87,7 @@ export default function RegisterPage() {
 
           <form onSubmit={handleRegister} className="space-y-4">
             {error && (
-              <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-[10px] font-black uppercase tracking-widest">
+              <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-[10px] font-black uppercase tracking-widest text-center">
                 {error}
               </div>
             )}
@@ -144,14 +163,27 @@ export default function RegisterPage() {
               <div className="h-px bg-border flex-1" />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-               <button className="flex items-center justify-center gap-2 p-3 border border-border rounded-xl hover:bg-slate-50 transition-all">
+            <div className="grid grid-cols-3 gap-3">
+               <button 
+                onClick={() => handleSocialLogin('google')}
+                className="flex items-center justify-center gap-2 p-3 border border-border rounded-xl hover:bg-slate-50 transition-all"
+               >
                   <Chrome className="w-4 h-4" />
-                  <span className="text-[10px] font-black text-foreground">GMAIL</span>
+                  <span className="text-[8px] font-black text-foreground">GMAIL</span>
                </button>
-               <button className="flex items-center justify-center gap-2 p-3 border border-border rounded-xl hover:bg-slate-50 transition-all">
+               <button 
+                onClick={() => handleSocialLogin('github')}
+                className="flex items-center justify-center gap-2 p-3 border border-border rounded-xl hover:bg-slate-50 transition-all"
+               >
                   <Github className="w-4 h-4" />
-                  <span className="text-[10px] font-black text-foreground">GITHUB</span>
+                  <span className="text-[8px] font-black text-foreground">GITHUB</span>
+               </button>
+               <button 
+                onClick={() => handleSocialLogin('yahoo' as any)}
+                className="flex items-center justify-center gap-2 p-3 border border-border rounded-xl hover:bg-slate-50 transition-all"
+               >
+                  <Mail className="w-4 h-4" />
+                  <span className="text-[8px] font-black text-foreground">YAHOO</span>
                </button>
             </div>
           </div>

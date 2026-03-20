@@ -116,59 +116,95 @@ export default function ProjectTracker() {
           </div>
           
           <div className="flex-1 p-8 flex flex-col items-center justify-center bg-gradient-to-b from-white to-secondary/20">
-            {/* SVG RISK DIAL */}
-            <div className="relative w-64 h-64 mb-6">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle
-                  cx="128"
-                  cy="128"
-                  r="110"
-                  stroke="currentColor"
-                  strokeWidth="16"
-                  fill="transparent"
-                  className="text-secondary"
-                />
-                <motion.circle
-                  cx="128"
-                  cy="128"
-                  r="110"
-                  stroke="currentColor"
-                  strokeWidth="16"
-                  fill="transparent"
-                  strokeDasharray={2 * Math.PI * 110}
-                  initial={{ strokeDashoffset: 2 * Math.PI * 110 }}
-                  animate={{ strokeDashoffset: (2 * Math.PI * 110) * (1 - riskScore / 100) }}
-                  transition={{ duration: 1.5, ease: "easeOut" }}
-                  strokeLinecap="round"
-                  className={riskScore > 70 ? "text-red-500" : riskScore > 30 ? "text-amber-500" : "text-primary"}
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <motion.span 
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  key={riskScore}
-                  className="text-6xl font-black text-foreground tracking-tighter"
+            {activeTab === "RISK ANALYSIS" ? (
+              <>
+                {/* SVG RISK DIAL */}
+                <div className="relative w-64 h-64 mb-6">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle
+                      cx="128"
+                      cy="128"
+                      r="110"
+                      stroke="currentColor"
+                      strokeWidth="16"
+                      fill="transparent"
+                      className="text-secondary"
+                    />
+                    <motion.circle
+                      cx="128"
+                      cy="128"
+                      r="110"
+                      stroke="currentColor"
+                      strokeWidth="16"
+                      fill="transparent"
+                      strokeDasharray={2 * Math.PI * 110}
+                      initial={{ strokeDashoffset: 2 * Math.PI * 110 }}
+                      animate={{ strokeDashoffset: (2 * Math.PI * 110) * (1 - riskScore / 100) }}
+                      transition={{ duration: 1.5, ease: "easeOut" }}
+                      strokeLinecap="round"
+                      className={riskScore > 70 ? "text-red-500" : riskScore > 30 ? "text-amber-500" : "text-primary"}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <motion.span 
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      key={riskScore}
+                      className="text-6xl font-black text-foreground tracking-tighter"
+                    >
+                      {riskScore}%
+                    </motion.span>
+                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Structural Risk</span>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 w-full gap-4 mt-4">
+                   {[
+                     { label: "Predictive", val: "Low", icon: TrendingUp },
+                     { label: "Environmental", val: "Stable", icon: Cloud },
+                     { label: "Logistics", val: "Critical", icon: Truck },
+                   ].map((item, i) => (
+                     <div key={i} className="bg-white p-3 rounded-xl border border-border shadow-sm flex flex-col items-center text-center">
+                        <item.icon className="w-4 h-4 text-primary mb-2" />
+                        <span className="text-[9px] font-black text-muted-foreground uppercase">{item.label}</span>
+                        <span className="text-xs font-bold text-foreground">{item.val}</span>
+                     </div>
+                   ))}
+                </div>
+                <button 
+                  onClick={() => mutation.mutate(formData)}
+                  className="mt-8 px-8 py-3 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg"
                 >
-                  {riskScore}%
-                </motion.span>
-                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Structural Risk</span>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-3 w-full gap-4 mt-4">
-               {[
-                 { label: "Predictive", val: "Low", icon: TrendingUp },
-                 { label: "Environmental", val: "Stable", icon: Cloud },
-                 { label: "Logistics", val: "Critical", icon: Truck },
-               ].map((item, i) => (
-                 <div key={i} className="bg-white p-3 rounded-xl border border-border shadow-sm flex flex-col items-center text-center">
-                    <item.icon className="w-4 h-4 text-primary mb-2" />
-                    <span className="text-[9px] font-black text-muted-foreground uppercase">{item.label}</span>
-                    <span className="text-xs font-bold text-foreground">{item.val}</span>
+                  {mutation.isPending ? "Calculating..." : "Re-Calculate Risk"}
+                </button>
+              </>
+            ) : activeTab === "LIVE FEED" ? (
+              <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                 <div className="w-full aspect-video bg-slate-900 rounded-2xl flex items-center justify-center relative overflow-hidden group">
+                    <div className="absolute top-4 left-4 flex items-center gap-2 bg-red-500 px-2 py-1 rounded text-[8px] font-black text-white animate-pulse">
+                       <span className="w-1.5 h-1.5 bg-white rounded-full" />
+                       LIVE HUB-LAG-01
+                    </div>
+                    <Cloud className="w-12 h-12 text-slate-700 group-hover:scale-110 transition-transform" />
+                    <p className="absolute bottom-4 text-[10px] font-mono text-slate-500">Connecting to regional RTMP cluster...</p>
                  </div>
-               ))}
-            </div>
+                 <div className="w-full p-4 bg-white border border-border rounded-xl">
+                    <p className="text-[10px] font-black text-foreground uppercase mb-2 italic">Neural Activity Log:</p>
+                    <div className="space-y-1">
+                       <p className="text-[9px] font-mono text-muted-foreground">[10:42:01] Object detected: Crane-04 (Action: Lifting)</p>
+                       <p className="text-[9px] font-mono text-muted-foreground">[10:42:15] Safety Protocol: All personnel verified</p>
+                    </div>
+                 </div>
+              </div>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                 <div className="text-center">
+                    <BarChart3 className="w-12 h-12 text-secondary mx-auto mb-4" />
+                    <p className="text-sm font-black text-foreground uppercase italic">Historical Data Sync Required</p>
+                    <p className="text-[10px] text-muted-foreground mt-2">Connecting to Abuja Central Data Repository...</p>
+                 </div>
+              </div>
+            )}
           </div>
         </div>
 
